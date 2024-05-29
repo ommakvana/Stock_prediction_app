@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Stock Prediction and Sentiment Analysis</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Stock Prediction and Sentiment Analysis</h1>
+
+      <h2>Stock Price Prediction</h2>
+      <input type="text" id="stockSymbol" placeholder="Enter stock symbol">
+      <button onclick="predictStock()">Predict</button>
+      <p id="stockPrediction"></p>
+
+      <h2>Sentiment Analysis</h2>
+      <textarea id="textInput" placeholder="Enter text"></textarea>
+      <button onclick="analyzeSentiment()">Analyze</button>
+      <p id="sentimentResult"></p>
+
+      <h2>News Sentiment Analysis</h2>
+      <input type="text" id="newsStockSymbol" placeholder="Enter stock symbol">
+      <button onclick="fetchNews()">Fetch News</button>
+      <div id="newsResults"></div>
+    </div>
+
+    <script>
+      function predictStock() {
+        const stockSymbol = document.getElementById('stockSymbol').value;
+        fetch('/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ stock_symbol: stockSymbol }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('stockPrediction').innerText = `Predicted Price: ${data.prediction}`;
+        });
+      }
+
+      function analyzeSentiment() {
+        const text = document.getElementById('textInput').value;
+        fetch('/sentiment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: text }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('sentimentResult').innerText = `Sentiment: ${data.sentiment}, Probability: ${data.probability}`;
+        });
+      }
+
+      function fetchNews() {
+        const stockSymbol = document.getElementById('newsStockSymbol').value;
+        fetch('/news', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ stock_symbol: stockSymbol }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          const newsResults = document.getElementById('newsResults');
+          newsResults.innerHTML = '';
+          data.forEach((article, index) => {
+            const articleElement = document.createElement('div');
+            articleElement.innerHTML = `<h3>${article.title}</h3><p>Sentiment: ${article.sentiment.toFixed(6)}</p>`;
+            newsResults.appendChild(articleElement);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
